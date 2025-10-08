@@ -1,7 +1,16 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.Chatrealtimeapp" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+    <!-- Customize your light theme here. -->
+    <item name="colorPrimary">@color/my_primary</item>
+    <item name="colorPrimaryVariant">@color/my_primary</item>
+    <item name="colorOnPrimary">@color/black</item>
+
+    <item name="colorSecondary">@color/my_secondary</item>
+    <item name="colorOnSecondary">@color/my_secondary</item>
+    <item name="colorSecondaryVariant">@color/black</item>
+
+    <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+    <item name="android:windowBackground">@color/off_white</item>
     </style>
 </resources>
