@@ -9,8 +9,10 @@ import android.widget.*;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.chat_realtime_app.ChatActivity;
 import com.example.chat_realtime_app.R;
 import com.example.chat_realtime_app.model.UserModel;
+import com.example.chat_realtime_app.utils.AndroidUtil;
 import com.example.chat_realtime_app.utils.FirebaseUtil;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
@@ -31,6 +33,13 @@ public class SearchUserRecyclerAdapter extends FirestoreRecyclerAdapter<UserMode
         if(model.getUserId().equals(FirebaseUtil.currentUserId())){
             holder.usernameText.setText(model.getUsername()+" (Me)");
         }
+
+        holder.itemView.setOnClickListener(v ->{
+            Intent intent = new Intent(context, ChatActivity.class);
+            AndroidUtil.passUserModelAsIntent(intent, model);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        });
 
     }
 
