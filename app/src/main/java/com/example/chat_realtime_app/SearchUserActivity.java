@@ -37,8 +37,11 @@ public class SearchUserActivity extends AppCompatActivity {
         backButton = findViewById(R.id.back_btn);
         recyclerView = findViewById(R.id.search_user_recycler_view);
 
+        searchInput.requestFocus();
+
         backButton.setOnClickListener(v -> {
-            onBackPressed();
+            getOnBackPressedDispatcher().onBackPressed();
+            //onBackPressed();
         });
 
         searchButton.setOnClickListener(v -> {
