@@ -6,20 +6,21 @@ import android.widget.*;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.chat_realtime_app.adapter.ChatRecyclerAdapter;
 import com.example.chat_realtime_app.model.ChatMessageModel;
 import com.example.chat_realtime_app.model.ChatroomModel;
 import com.example.chat_realtime_app.model.UserModel;
 import com.example.chat_realtime_app.utils.AndroidUtil;
 import com.example.chat_realtime_app.utils.FirebaseUtil;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.Query;
 
 import java.util.Arrays;
 
@@ -27,7 +28,7 @@ public class ChatActivity extends AppCompatActivity {
     UserModel otherUser;
     String chatroomId;
     ChatroomModel chatroomModel;
-//    ChatRecyclerAdapter adapter;
+    ChatRecyclerAdapter adapter;
 
     EditText messageInput;
     ImageButton sendMessageBtn;
@@ -60,14 +61,15 @@ public class ChatActivity extends AppCompatActivity {
 
         otherUsername.setText(otherUser.getUsername());
 
-        getOrCreateChatroomModel();
-
         sendMessageBtn.setOnClickListener(v -> {
             String message = messageInput.getText().toString().trim();
             if (message.isEmpty())
                 return;
             sendMessageToUser(message);
         });
+
+        getOrCreateChatroomModel();
+        setupChatRecyclerView();
     }
 
     private void sendMessageToUser(String message) {
@@ -103,6 +105,30 @@ public class ChatActivity extends AppCompatActivity {
                     );
                     FirebaseUtil.getChatroomReference(chatroomId).set(chatroomModel);
                 }
+            }
+        });
+    }
+
+    void setupChatRecyclerView(){
+        Query query = FirebaseUtil.getChatroomMessageReference(chatroomId)
+                .orderBy("timestamp", Query.Direction.DESCENDING);
+
+        FirestoreRecyclerOptions<ChatMessageModel> options = new FirestoreRecyclerOptions.Builder<ChatMessageModel>()
+                .setQuery(query,ChatMessageModel.class).build();
+
+        adapter = new ChatRecyclerAdapter(options,getApplicationContext());
+
+        //reverse layout
+        LinearLayoutManager manager = new LinearLayoutManager(this);
+        manager.setReverseLayout(true);
+        recyclerView.setLayoutManager(manager);
+        recyclerView.setAdapter(adapter);
+        adapter.startListening();
+        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                super.onItemRangeInserted(positionStart, itemCount);
+                recyclerView.smoothScrollToPosition(0);
             }
         });
     }
