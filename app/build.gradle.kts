@@ -39,6 +39,7 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation(libs.firebase.firestore)
+    implementation(libs.firebase.storage)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -49,4 +50,8 @@ dependencies {
     implementation ("com.firebaseui:firebase-ui-firestore:9.0.0")
     implementation ("com.github.dhaval2404:imagepicker:2.1")
     implementation ("com.github.bumptech.glide:glide:5.0.5")
+
+    implementation("com.cloudinary:cloudinary-android:2.4.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0") // để gọi API upload
+
 }

@@ -9,6 +9,16 @@ public class UserModel {
     private String userId;
     private String fcmToken;
 
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
+
+    private String avatarUrl;
+
     public UserModel() {
     }
 

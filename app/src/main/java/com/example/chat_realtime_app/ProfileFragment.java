@@ -18,6 +18,7 @@ import android.widget.ImageView;
 
 import com.example.chat_realtime_app.model.UserModel;
 import com.example.chat_realtime_app.utils.AndroidUtil;
+import com.example.chat_realtime_app.utils.CloudinaryUtil;
 import com.example.chat_realtime_app.utils.FirebaseUtil;
 import com.github.dhaval2404.imagepicker.ImagePicker;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -44,17 +45,54 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+//        imagePickLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+//                result -> {
+//                    if(result.getResultCode() == Activity.RESULT_OK){
+//                        Intent data = result.getData();
+//                        if(data!=null && data.getData()!=null){
+//                            selectedImageUri = data.getData();
+//                            AndroidUtil.setProfilePic(getContext(),selectedImageUri,profilePic);
+//                        }
+//                    }
+//                }
+//        );
+
+
+
         imagePickLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if(result.getResultCode() == Activity.RESULT_OK){
                         Intent data = result.getData();
                         if(data!=null && data.getData()!=null){
                             selectedImageUri = data.getData();
-                            AndroidUtil.setProfilePic(getContext(),selectedImageUri,profilePic);
+                            AndroidUtil.setProfilePic(getContext(), selectedImageUri, profilePic);
+
+                            setInProgress(true);
+
+                            CloudinaryUtil.uploadAvatar(
+                                    getContext(),
+                                    selectedImageUri,
+                                    "unsigned_chat_avatar",
+                                    "dq6ygkf8k",
+                                    FirebaseUtil.currentUserDetails(),
+                                    () -> {
+                                        getActivity().runOnUiThread(() -> {
+                                            setInProgress(false);
+                                            AndroidUtil.showToast(getContext(), "Updated avatar successfully!");
+                                        });
+                                    },
+                                    () -> {
+                                        getActivity().runOnUiThread(() -> {
+                                            setInProgress(false);
+                                            AndroidUtil.showToast(getContext(), "Upload thất bại!");
+                                        });
+                                    }
+                            );
                         }
                     }
                 }
         );
+
     }
 
     @Override
@@ -113,7 +151,8 @@ public class ProfileFragment extends Fragment {
 
     //save to database
     void updateToFirestore(){
-        FirebaseUtil.currentUserDetails().set(currentUserModel)
+        FirebaseUtil.currentUserDetails()
+                .update("username", currentUserModel.getUsername())
                 .addOnCompleteListener(task -> {
                     setInProgress(false);
                     if(task.isSuccessful()){
@@ -131,6 +170,12 @@ public class ProfileFragment extends Fragment {
            currentUserModel = task.getResult().toObject(UserModel.class);
            usernameInput.setText(currentUserModel.getUsername());
            phoneInput.setText(currentUserModel.getPhone());
+
+           //set avatar
+            if (currentUserModel.getAvatarUrl() != null && !currentUserModel.getAvatarUrl().isEmpty()) {
+                AndroidUtil.setProfilePic(getContext(), Uri.parse(currentUserModel.getAvatarUrl()), profilePic);
+            }
+
         });
     }
 
