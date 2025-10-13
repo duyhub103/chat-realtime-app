@@ -1,5 +1,6 @@
 package com.example.chat_realtime_app;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.widget.*;
 
@@ -60,6 +61,12 @@ public class ChatActivity extends AppCompatActivity {
 //                        AndroidUtil.setProfilePic(this, uri, imageView);
 //                    }
 //                });
+
+        Uri avatarUri = null;
+        if (otherUser.getAvatarUrl() != null && !otherUser.getAvatarUrl().isEmpty()) {
+            avatarUri = Uri.parse(otherUser.getAvatarUrl());
+        }
+        AndroidUtil.setProfilePic(ChatActivity.this, avatarUri, imageView);
 
         backBtn.setOnClickListener((v) -> {
             onBackPressed();

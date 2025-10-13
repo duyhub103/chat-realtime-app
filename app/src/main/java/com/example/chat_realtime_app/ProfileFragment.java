@@ -171,7 +171,7 @@ public class ProfileFragment extends Fragment {
            usernameInput.setText(currentUserModel.getUsername());
            phoneInput.setText(currentUserModel.getPhone());
 
-           //set avatar
+           //get avatar
             if (currentUserModel.getAvatarUrl() != null && !currentUserModel.getAvatarUrl().isEmpty()) {
                 AndroidUtil.setProfilePic(getContext(), Uri.parse(currentUserModel.getAvatarUrl()), profilePic);
             }

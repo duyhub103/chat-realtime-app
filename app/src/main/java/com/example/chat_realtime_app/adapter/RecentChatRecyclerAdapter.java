@@ -51,6 +51,17 @@ public class RecentChatRecyclerAdapter extends FirestoreRecyclerAdapter<Chatroom
 //                                        AndroidUtil.setProfilePic(context,uri,holder.profilePic);
 //                                    }
 //                                });
+
+                        // display avatar
+                        Uri avatarUri = null;
+                        if (otherUserModel.getAvatarUrl() != null && !otherUserModel.getAvatarUrl().isEmpty()) {
+                            avatarUri = Uri.parse(otherUserModel.getAvatarUrl());
+                        }
+                        AndroidUtil.setProfilePic(context, avatarUri, holder.profilePic);
+
+
+
+
                         holder.usernameText.setText(otherUserModel.getUsername());
                         if(lastMessageSentByMe)
                             holder.lastMessageText.setText("You : "+model.getLastMessage());
