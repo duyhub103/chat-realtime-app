@@ -16,10 +16,3 @@ local.properties
 .idea/
 # Firebase config
 app/google-services.json
-
-unsigned_chat_avatar: upload preset
-dq6ygkf8k cloud: name
-491949431175665: apikey cloudinary
-BXDDju_5zuzbZtmwL78h6yxyb_k: api secret
-
-
