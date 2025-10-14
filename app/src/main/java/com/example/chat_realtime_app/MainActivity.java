@@ -2,6 +2,7 @@ package com.example.chat_realtime_app;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.ImageButton;
 
@@ -12,9 +13,12 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.chat_realtime_app.utils.AndroidUtil;
+import com.example.chat_realtime_app.utils.FirebaseUtil;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -53,5 +57,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         bottomNavigationView.setSelectedItemId(R.id.menu_chat);
+
+        getFCMToken();
+    }
+
+    private void getFCMToken() {
+        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
+           if (task.isSuccessful()){
+               String token = task.getResult();
+               FirebaseUtil.currentUserDetails().update("fcmToken",token);
+           }
+        });
     }
 }

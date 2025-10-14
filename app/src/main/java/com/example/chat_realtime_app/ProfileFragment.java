@@ -22,6 +22,7 @@ import com.example.chat_realtime_app.utils.CloudinaryUtil;
 import com.example.chat_realtime_app.utils.FirebaseUtil;
 import com.github.dhaval2404.imagepicker.ImagePicker;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
@@ -113,11 +114,20 @@ public class ProfileFragment extends Fragment {
         });
 
         logoutBtn.setOnClickListener(v -> {
-            FirebaseUtil.logout();
-            Intent intent = new Intent(getContext(), SplashActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            AndroidUtil.showToast(getContext(), "Logged out successfully");
-            startActivity(intent);
+            //delete fcm token when logout
+            FirebaseMessaging.getInstance().deleteToken().addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(com.google.android.gms.tasks.Task<Void> task) {
+                    if (task.isSuccessful()) {
+                        // Token deleted successfully
+                        FirebaseUtil.logout();
+                        Intent intent = new Intent(getContext(), SplashActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        AndroidUtil.showToast(getContext(), "Logged out successfully");
+                        startActivity(intent);
+                    }
+                }
+            });
         });
 
         profilePic.setOnClickListener((v)->{
