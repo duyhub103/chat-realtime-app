@@ -158,22 +158,30 @@ public class ChatActivity extends AppCompatActivity {
 
     void sendNotification(String message){
         FirebaseUtil.currentUserDetails().get().addOnCompleteListener(task -> {
-            if(task.isSuccessful()){
-                UserModel currentUser = task.getResult().toObject(UserModel.class);
-                try{
-                    JSONObject payload = new JSONObject();
-                    payload.put("fcmToken", otherUser.getFcmToken());
-                    payload.put("title", currentUser.getUsername());
-                    payload.put("body", message);
+            if (!task.isSuccessful()) return;
+            UserModel currentUser = task.getResult().toObject(UserModel.class);
 
-                    callApi(payload);
-                }catch (Exception e){
-                    Log.e("SendNotification", "Build JSON error", e);
-                }
+            try {
+                // payload top-level
+                JSONObject payload = new JSONObject();
+                payload.put("fcmToken", otherUser.getFcmToken());
+                payload.put("title", currentUser.getUsername());
+                payload.put("body", message);
+
+                // data để client mở đúng chat
+                JSONObject data = new JSONObject();
+                data.put("otherUserId", otherUser.getUserId());
+                data.put("otherUsername", otherUser.getUsername());
+                data.put("otherAvatarUrl", otherUser.getAvatarUrl() == null ? "" : otherUser.getAvatarUrl());
+                data.put("chatroomId", FirebaseUtil.getChatroomId(FirebaseUtil.currentUserId(), otherUser.getUserId()));
+                payload.put("data", data);
+
+                callApi(payload);
+            } catch (Exception e) {
+                Log.e("SendNotification", "Build JSON error", e);
             }
         });
     }
-
 
     void callApi(JSONObject jsonObject){
         MediaType JSON = MediaType.get("application/json; charset=utf-8");
@@ -183,6 +191,7 @@ public class ChatActivity extends AppCompatActivity {
                 .url("https://chat-realtime-app-mgyn.onrender.com/send")
                 .post(body)
                 .build();
+
         client.newCall(request).enqueue(new Callback() {
             @Override public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 Log.e("SendNotification", "HTTP error: " + e.getMessage());
@@ -197,6 +206,7 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
     }
+
 
 
 }

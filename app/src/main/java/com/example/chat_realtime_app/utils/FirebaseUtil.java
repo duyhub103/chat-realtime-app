@@ -41,6 +41,9 @@ public class FirebaseUtil {
     }
 
     public static String getChatroomId(String userId1,String userId2){
+        if(userId1 == null || userId2 == null){
+            throw new IllegalArgumentException("getChatroomId: userId is null");
+        }
         if(userId1.hashCode()<userId2.hashCode()){
             return userId1+"_"+userId2;
         }else{
