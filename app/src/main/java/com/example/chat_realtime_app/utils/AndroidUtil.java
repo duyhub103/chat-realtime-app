@@ -22,6 +22,7 @@ public class AndroidUtil {
         intent.putExtra("userId",model.getUserId());
         intent.putExtra("username",model.getUsername());
         intent.putExtra("phone",model.getPhone());
+        intent.putExtra("fcmToken",model.getFcmToken());
         intent.putExtra("avatarUrl",model.getAvatarUrl());
     }
 
@@ -32,6 +33,7 @@ public class AndroidUtil {
         userModel.setUserId(intent.getStringExtra("userId"));
         userModel.setUsername(intent.getStringExtra("username"));
         userModel.setPhone(intent.getStringExtra("phone"));
+        userModel.setFcmToken(intent.getStringExtra("fcmToken"));
         userModel.setAvatarUrl(intent.getStringExtra("avatarUrl"));
         return userModel;
     }
