@@ -2,6 +2,7 @@ package com.example.chat_realtime_app;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.*;
 
 import androidx.activity.EdgeToEdge;
@@ -156,54 +157,48 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     void sendNotification(String message){
-
         FirebaseUtil.currentUserDetails().get().addOnCompleteListener(task -> {
             if(task.isSuccessful()){
                 UserModel currentUser = task.getResult().toObject(UserModel.class);
-                //create json object and call api
                 try{
-                    JSONObject jsonObject  = new JSONObject();
+                    JSONObject payload = new JSONObject();
+                    payload.put("fcmToken", otherUser.getFcmToken());
+                    payload.put("title", currentUser.getUsername());
+                    payload.put("body", message);
 
-                    JSONObject notificationObj = new JSONObject();
-                    notificationObj.put("title",currentUser.getUsername());
-                    notificationObj.put("body",message);
-
-                    JSONObject dataObj = new JSONObject();
-                    dataObj.put("userId",currentUser.getUserId());
-
-                    jsonObject.put("notification",notificationObj);
-                    jsonObject.put("data",dataObj);
-                    jsonObject.put("to",otherUser.getFcmToken());
-
-                    callApi(jsonObject);
+                    callApi(payload);
                 }catch (Exception e){
+                    Log.e("SendNotification", "Build JSON error", e);
                 }
             }
         });
     }
 
+
     void callApi(JSONObject jsonObject){
         MediaType JSON = MediaType.get("application/json; charset=utf-8");
         OkHttpClient client = new OkHttpClient();
-        String url = "https://fcm.googleapis.com/fcm/send";
-        RequestBody body = RequestBody.create(jsonObject.toString(),JSON);
+        RequestBody body = RequestBody.create(jsonObject.toString(), JSON);
         Request request = new Request.Builder()
-                .url(url)
+                .url("https://chat-realtime-app-mgyn.onrender.com/send")
                 .post(body)
-                .header("Authorization","Bearer 4f95c285fcffb0855e302d74c563ac301f1cb082")
                 .build();
         client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-
+            @Override public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                Log.e("SendNotification", "HTTP error: " + e.getMessage());
             }
-
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-
+            @Override public void onResponse(@NonNull Call call, @NonNull Response res) throws IOException {
+                String respBody = res.body() != null ? res.body().string() : "";
+                if (res.isSuccessful()) {
+                    Log.d("SendNotification", "OK " + respBody);
+                } else {
+                    Log.e("SendNotification", "FAIL " + res.code() + " " + respBody);
+                }
             }
         });
     }
+
+
 }
 
 
