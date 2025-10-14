@@ -33,19 +33,31 @@ public class SearchUserRecyclerAdapter extends FirestoreRecyclerAdapter<UserMode
         if(model.getUserId().equals(FirebaseUtil.currentUserId())){
             holder.usernameText.setText(model.getUsername()+" (Me)");
         }
-
-        Uri avatarUri = null;
-        if (model.getAvatarUrl() != null && !model.getAvatarUrl().isEmpty()) {
-            avatarUri = Uri.parse(model.getAvatarUrl());
+        try {
+            Uri avatarUri = null;
+            if (model.getAvatarUrl() != null && !model.getAvatarUrl().isEmpty()) {
+                avatarUri = Uri.parse(model.getAvatarUrl());
+            }
+            AndroidUtil.setProfilePic(context, avatarUri, holder.profilePic);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        AndroidUtil.setProfilePic(context, avatarUri, holder.profilePic);
+
+
+
+//        Uri avatarUri = null;
+//        if (model.getAvatarUrl() != null && !model.getAvatarUrl().isEmpty()) {
+//            avatarUri = Uri.parse(model.getAvatarUrl());
+//        }
+//        AndroidUtil.setProfilePic(context, avatarUri, holder.profilePic);
 
         holder.itemView.setOnClickListener(v ->{
             Intent intent = new Intent(context, ChatActivity.class);
             AndroidUtil.passUserModelAsIntent(intent, model);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
         });
+
 
     }
 

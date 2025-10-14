@@ -44,6 +44,7 @@ public class SearchUserActivity extends AppCompatActivity {
             //onBackPressed();
         });
 
+
         searchButton.setOnClickListener(v -> {
             String searchTerm = searchInput.getText().toString();
             if(searchTerm.isEmpty() || searchTerm.length() < 3){
@@ -56,6 +57,10 @@ public class SearchUserActivity extends AppCompatActivity {
 
     private void setupSearchRecyclerView(String searchTerm) {
 
+        if (adapter != null) {
+            adapter.stopListening();
+        }
+
         Query query = FirebaseUtil.allUserCollectionReference()
                 .whereGreaterThanOrEqualTo("username",searchTerm)
                 .whereLessThanOrEqualTo("username",searchTerm+'\uf8ff');
@@ -63,32 +68,37 @@ public class SearchUserActivity extends AppCompatActivity {
         FirestoreRecyclerOptions<UserModel> options = new FirestoreRecyclerOptions.Builder<UserModel>()
                 .setQuery(query,UserModel.class).build();
 
-        adapter = new SearchUserRecyclerAdapter(options,getApplicationContext());
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(adapter);
+        if (adapter == null) {
+            // Khởi tạo adapter và RecyclerView lần đầu tiên
+            adapter = new SearchUserRecyclerAdapter(options, this);
+            recyclerView.setLayoutManager(new LinearLayoutManager(this));
+            recyclerView.setAdapter(adapter);
+        } else {
+            // Nếu adapter đã tồn tại, dừng lắng nghe trước khi cập nhật
+            adapter.stopListening();
+            adapter.updateOptions(options);
+        }
+        // Luôn bắt đầu lắng nghe sau khi đã thiết lập hoặc cập nhật xong
         adapter.startListening();
-
-
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        if(adapter!=null)
-            adapter.startListening();
+        if (adapter != null) adapter.startListening();
     }
 
     @Override
     protected void onStop() {
+        if (adapter != null) adapter.stopListening();
         super.onStop();
-        if(adapter!=null)
-            adapter.stopListening();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if(adapter!=null)
-            adapter.startListening();
+//        if(adapter!=null)
+//            adapter.startListening();
     }
+
 }

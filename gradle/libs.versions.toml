@@ -10,6 +10,7 @@ constraintlayout = "2.2.1"
 googleGmsGoogleServices = "4.4.3"
 firebaseFirestore = "26.0.1"
 firebaseStorage = "22.0.1"
+firebaseMessaging = "25.0.1"
 
 [libraries]
 ccp = "com.hbb20:ccp:2.6.0"
@@ -22,6 +23,7 @@ activity = { group = "androidx.activity", name = "activity", version.ref = "acti
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
 firebase-storage = { group = "com.google.firebase", name = "firebase-storage", version.ref = "firebaseStorage" }
+firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "firebaseMessaging" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

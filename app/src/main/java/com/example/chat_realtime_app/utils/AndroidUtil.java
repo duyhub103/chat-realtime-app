@@ -1,5 +1,6 @@
 package com.example.chat_realtime_app.utils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -21,14 +22,17 @@ public class AndroidUtil {
         intent.putExtra("userId",model.getUserId());
         intent.putExtra("username",model.getUsername());
         intent.putExtra("phone",model.getPhone());
-
+        intent.putExtra("avatarUrl",model.getAvatarUrl());
     }
+
+    //có thể truyền usermodel qua intent bằng Parcelable
 
     public static UserModel getUserModelFromIntent(Intent intent){
         UserModel userModel = new UserModel();
         userModel.setUserId(intent.getStringExtra("userId"));
         userModel.setUsername(intent.getStringExtra("username"));
         userModel.setPhone(intent.getStringExtra("phone"));
+        userModel.setAvatarUrl(intent.getStringExtra("avatarUrl"));
         return userModel;
     }
 
@@ -47,4 +51,6 @@ public class AndroidUtil {
                 .apply(RequestOptions.circleCropTransform())
                 .into(imageView);
     }
+
+
 }
