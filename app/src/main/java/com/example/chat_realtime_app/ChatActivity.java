@@ -157,58 +157,58 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     void sendNotification(String message){
+
         FirebaseUtil.currentUserDetails().get().addOnCompleteListener(task -> {
-            if (!task.isSuccessful()) return;
-            UserModel currentUser = task.getResult().toObject(UserModel.class);
+            if(task.isSuccessful()){
+                UserModel currentUser = task.getResult().toObject(UserModel.class);
+                try{
+                    JSONObject jsonObject  = new JSONObject();
 
-            try {
-                // payload top-level
-                JSONObject payload = new JSONObject();
-                payload.put("fcmToken", otherUser.getFcmToken());
-                payload.put("title", currentUser.getUsername());
-                payload.put("body", message);
+                    JSONObject notificationObj = new JSONObject();
+                    notificationObj.put("title",currentUser.getUsername());
+                    notificationObj.put("body",message);
 
-                // data để client mở đúng chat
-                JSONObject data = new JSONObject();
-                data.put("otherUserId", otherUser.getUserId());
-                data.put("otherUsername", otherUser.getUsername());
-                data.put("otherAvatarUrl", otherUser.getAvatarUrl() == null ? "" : otherUser.getAvatarUrl());
-                data.put("chatroomId", FirebaseUtil.getChatroomId(FirebaseUtil.currentUserId(), otherUser.getUserId()));
-                payload.put("data", data);
+                    JSONObject dataObj = new JSONObject();
+                    dataObj.put("userId",currentUser.getUserId());
 
-                callApi(payload);
-            } catch (Exception e) {
-                Log.e("SendNotification", "Build JSON error", e);
+                    jsonObject.put("notification",notificationObj);
+                    jsonObject.put("data",dataObj);
+                    jsonObject.put("to",otherUser.getFcmToken());
+
+                    callApi(jsonObject);
+
+                }catch (Exception e){
+
+                }
+
             }
         });
+
     }
 
     void callApi(JSONObject jsonObject){
         MediaType JSON = MediaType.get("application/json; charset=utf-8");
         OkHttpClient client = new OkHttpClient();
-        RequestBody body = RequestBody.create(jsonObject.toString(), JSON);
+        String url = "https://fcm.googleapis.com/fcm/send";
+        RequestBody body = RequestBody.create(jsonObject.toString(),JSON);
         Request request = new Request.Builder()
-                .url("https://chat-realtime-app-mgyn.onrender.com/send")
+                .url(url)
                 .post(body)
+                .header("Authorization","Bearer YOUR_API_KEY")
                 .build();
-
         client.newCall(request).enqueue(new Callback() {
-            @Override public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                Log.e("SendNotification", "HTTP error: " + e.getMessage());
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+
             }
-            @Override public void onResponse(@NonNull Call call, @NonNull Response res) throws IOException {
-                String respBody = res.body() != null ? res.body().string() : "";
-                if (res.isSuccessful()) {
-                    Log.d("SendNotification", "OK " + respBody);
-                } else {
-                    Log.e("SendNotification", "FAIL " + res.code() + " " + respBody);
-                }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+
             }
         });
+
     }
-
-
-
 }
 
 

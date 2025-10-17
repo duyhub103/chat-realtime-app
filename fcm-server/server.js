@@ -25,7 +25,7 @@ app.get("/", (req, res) => {
   res.status(200).send(`🚀 Server running`);
 });
 
-// Gửi FCM: ưu tiên data (bạn sẽ tự render notification ở client)
+// Gửi FCM: ưu tiên data (tự render notification ở client)
 app.post("/send", async (req, res) => {
   try {
     const { fcmToken, title, body, data } = req.body || {};

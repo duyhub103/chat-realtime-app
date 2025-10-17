@@ -4,8 +4,11 @@ import android.Manifest;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
@@ -13,67 +16,103 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.example.chat_realtime_app.model.UserModel;
+import com.example.chat_realtime_app.utils.AndroidUtil;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+import com.google.firebase.firestore.DocumentSnapshot;
+
+import com.example.chat_realtime_app.utils.FirebaseUtil;
+import com.example.chat_realtime_app.utils.AndroidUtil;
 
 import java.util.Map;
 
 public class FCMNotificationService extends FirebaseMessagingService {
+
+    // Nhận token mới khi cài đặt app hoặc đăng nhập lại
     @Override
-    public void onMessageReceived(@NonNull RemoteMessage msg) {
-        String title = "Tin nhắn mới";
-        String body  = "";
-
-        Map<String, String> data = msg.getData();
-        if (data != null && !data.isEmpty()) {
-            if (data.containsKey("title")) title = data.get("title");
-            if (data.containsKey("body"))  body  = data.get("body");
-        } else if (msg.getNotification() != null) {
-            if (msg.getNotification().getTitle() != null) title = msg.getNotification().getTitle();
-            if (msg.getNotification().getBody()  != null) body  = msg.getNotification().getBody();
+    public void onNewToken(@NonNull String token) {
+        super.onNewToken(token);
+        if (FirebaseUtil.isLoggedIn()) {
+            FirebaseUtil.currentUserDetails().update("fcmToken", token);
         }
+    }
 
-        String otherUserId    = data.getOrDefault("otherUserId", "");
-        String otherUsername  = data.getOrDefault("otherUsername", "");
-        String otherAvatarUrl = data.getOrDefault("otherAvatarUrl", "");
-        String chatroomId     = data.getOrDefault("chatroomId", "");
+    // Khi nhận thông báo
+    @Override
+    public void onMessageReceived(@NonNull RemoteMessage message) {
+        super.onMessageReceived(message);
 
-        // Channel cho Android 8+
-        String CHANNEL_ID = "chat_default";
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel ch = new NotificationChannel(
-                    CHANNEL_ID, "Chat", NotificationManager.IMPORTANCE_HIGH);
-            NotificationManager nm = getSystemService(NotificationManager.class);
-            if (nm != null) nm.createNotificationChannel(ch);
+        // 🔹 Ưu tiên đọc từ "data" vì server bạn đang gửi theo kiểu data-only
+        if (message.getData().size() > 0) {
+            String title = message.getData().get("title");
+            String body = message.getData().get("body");
+            String userId = message.getData().get("userId");
+
+            if (userId == null || userId.isEmpty()) {
+                // Nếu không có userId thì bỏ qua, tránh crash
+                return;
+            }
+
+            // 🔹 Lấy thông tin người gửi từ Firestore
+            FirebaseUtil.allUserCollectionReference().document(userId).get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot doc = task.getResult();
+                            if (doc != null && doc.exists()) {
+                                UserModel sender = doc.toObject(UserModel.class);
+                                if (sender != null) {
+                                    showNotification(this, title, body, sender);
+                                }
+                            }
+                        }
+                    });
         }
+    }
 
-        // Intent mở thẳng ChatActivity
-        Intent intent = new Intent(this, ChatActivity.class);
-        intent.putExtra("otherUserId", otherUserId);
-        intent.putExtra("otherUsername", otherUsername);
-        intent.putExtra("otherAvatarUrl", otherAvatarUrl);
-        intent.putExtra("chatroomId", chatroomId);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    // Hiển thị popup notification
+    private void showNotification(Context context, String title, String body, UserModel sender) {
+        String channelId = "chat_message_channel";
 
-        PendingIntent pi = PendingIntent.getActivity(
-                this,
-                (int) System.currentTimeMillis(),
+        // Intent để mở đúng ChatActivity
+        Intent intent = new Intent(context, ChatActivity.class);
+        AndroidUtil.passUserModelAsIntent(intent, sender);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                context,
+                sender.getUserId().hashCode(), // mã ID riêng cho mỗi user
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
 
-        NotificationCompat.Builder b = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setSmallIcon(R.drawable.person_icon)
+        // Âm thanh
+        Uri defaultSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelId)
+                .setSmallIcon(R.drawable.launcher_icon) // bạn nên thêm icon này vào res/drawable
                 .setContentTitle(title)
                 .setContentText(body)
                 .setAutoCancel(true)
-                .setContentIntent(pi)
+                .setSound(defaultSound)
+                .setContentIntent(pendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_HIGH);
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-                == PackageManager.PERMISSION_GRANTED) {
-            NotificationManagerCompat.from(this).notify((int) System.currentTimeMillis(), b.build());
+        NotificationManager manager = (NotificationManager)
+                context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        // Với Android 8+ phải tạo channel
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(
+                    channelId,
+                    "Chat Messages",
+                    NotificationManager.IMPORTANCE_HIGH
+            );
+            manager.createNotificationChannel(channel);
         }
+
+        // Hiển thị thông báo
+        manager.notify((int) System.currentTimeMillis(), builder.build());
     }
 }
 
