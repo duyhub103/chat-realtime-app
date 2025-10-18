@@ -156,58 +156,53 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
-    void sendNotification(String message){
-
+    void sendNotification(String message) {
         FirebaseUtil.currentUserDetails().get().addOnCompleteListener(task -> {
-            if(task.isSuccessful()){
+            if (task.isSuccessful()) {
                 UserModel currentUser = task.getResult().toObject(UserModel.class);
-                try{
-                    JSONObject jsonObject  = new JSONObject();
+                try {
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("fcmToken", otherUser.getFcmToken());
+                    jsonObject.put("title", currentUser.getUsername());
+                    jsonObject.put("body", message);
 
-                    JSONObject notificationObj = new JSONObject();
-                    notificationObj.put("title",currentUser.getUsername());
-                    notificationObj.put("body",message);
-
+                    // Data thêm (chỉ userId là đủ, vì FCMNotificationService sẽ fetch UserModel từ Firestore)
                     JSONObject dataObj = new JSONObject();
-                    dataObj.put("userId",currentUser.getUserId());
-
-                    jsonObject.put("notification",notificationObj);
-                    jsonObject.put("data",dataObj);
-                    jsonObject.put("to",otherUser.getFcmToken());
+                    dataObj.put("userId", currentUser.getUserId());
+                    jsonObject.put("data", dataObj);
 
                     callApi(jsonObject);
-
-                }catch (Exception e){
-
+                } catch (Exception e) {
+                    Log.e("ChatActivity", "Error creating notification JSON", e);
                 }
-
             }
         });
-
     }
 
-    void callApi(JSONObject jsonObject){
+    void callApi(JSONObject jsonObject) {
         MediaType JSON = MediaType.get("application/json; charset=utf-8");
         OkHttpClient client = new OkHttpClient();
-        String url = "https://fcm.googleapis.com/fcm/send";
-        RequestBody body = RequestBody.create(jsonObject.toString(),JSON);
+        String url = "https://chat-realtime-app-mgyn.onrender.com/send";
+        RequestBody body = RequestBody.create(jsonObject.toString(), JSON);
         Request request = new Request.Builder()
                 .url(url)
                 .post(body)
-                .header("Authorization","Bearer YOUR_API_KEY")
                 .build();
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
-
+                Log.e("ChatActivity", "Server send failed", e);
             }
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-
+                if (response.isSuccessful()) {
+                    Log.d("ChatActivity", "Server sent successfully: " + response.body().string());
+                } else {
+                    Log.e("ChatActivity", "Server send error: " + response.body().string());
+                }
             }
         });
-
     }
 }
 

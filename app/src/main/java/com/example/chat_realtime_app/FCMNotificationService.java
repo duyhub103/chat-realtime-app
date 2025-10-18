@@ -10,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -42,6 +43,7 @@ public class FCMNotificationService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(@NonNull RemoteMessage message) {
         super.onMessageReceived(message);
+        Log.d("FCMService", "Message received: " + message.getData().toString());
 
         // 🔹 Ưu tiên đọc từ "data" vì server bạn đang gửi theo kiểu data-only
         if (message.getData().size() > 0) {
@@ -49,8 +51,8 @@ public class FCMNotificationService extends FirebaseMessagingService {
             String body = message.getData().get("body");
             String userId = message.getData().get("userId");
 
-            if (userId == null || userId.isEmpty()) {
-                // Nếu không có userId thì bỏ qua, tránh crash
+            if (userId == null || userId.isEmpty() || title == null || body == null) { //không có userId th bỏ qua tránh crash
+                Log.e("FCMService", "Missing data: title=" + title + ", body=" + body + ", userId=" + userId);
                 return;
             }
 
@@ -63,8 +65,12 @@ public class FCMNotificationService extends FirebaseMessagingService {
                                 UserModel sender = doc.toObject(UserModel.class);
                                 if (sender != null) {
                                     showNotification(this, title, body, sender);
+                                    Log.d("FCMService", "Notification shown for user: " + userId);
                                 }
                             }
+                        }
+                        else{
+                            Log.e("FCMService", "Firestore fetch failed", task.getException());
                         }
                     });
         }
@@ -112,7 +118,12 @@ public class FCMNotificationService extends FirebaseMessagingService {
         }
 
         // Hiển thị thông báo
-        manager.notify((int) System.currentTimeMillis(), builder.build());
+        try {
+            manager.notify(sender.getUserId().hashCode(), builder.build());  // Sử dụng hash làm ID
+        } catch (Exception e) {
+            Log.e("FCMService", "Error notifying", e);
+        }
     }
+
 }
 

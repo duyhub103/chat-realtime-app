@@ -3,6 +3,7 @@ package com.example.chat_realtime_app;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,6 +26,7 @@ public class SplashActivity extends AppCompatActivity {
         if(getIntent().getExtras()!=null){
             //from notification
             String userId = getIntent().getExtras().getString("userId");
+            Log.d("SplashActivity", "From notification with userId: " + userId);
 
             if (userId != null && !userId.isEmpty()){
                 FirebaseUtil.allUserCollectionReference().document(userId).get()
@@ -41,6 +43,9 @@ public class SplashActivity extends AppCompatActivity {
                                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                 startActivity(intent);
                                 finish();
+                            }
+                            else{
+                                Log.e("SplashActivity", "Failed to fetch user", task.getException());
                             }
                         });
             }else{
