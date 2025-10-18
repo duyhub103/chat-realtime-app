@@ -43,7 +43,7 @@ public class FCMNotificationService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(@NonNull RemoteMessage message) {
         super.onMessageReceived(message);
-        Log.d("FCMService", "Message received: " + message.getData().toString());
+        //Log.d("FCMService", "Message received: " + message.getData().toString());
 
         // 🔹 Ưu tiên đọc từ "data" vì server bạn đang gửi theo kiểu data-only
         if (message.getData().size() > 0) {
@@ -65,7 +65,7 @@ public class FCMNotificationService extends FirebaseMessagingService {
                                 UserModel sender = doc.toObject(UserModel.class);
                                 if (sender != null) {
                                     showNotification(this, title, body, sender);
-                                    Log.d("FCMService", "Notification shown for user: " + userId);
+                                    //Log.d("FCMService", "Notification shown for user: " + userId);
                                 }
                             }
                         }
@@ -96,7 +96,7 @@ public class FCMNotificationService extends FirebaseMessagingService {
         Uri defaultSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelId)
-                .setSmallIcon(R.drawable.launcher_icon) // bạn nên thêm icon này vào res/drawable
+                .setSmallIcon(R.drawable.launcher_icon)
                 .setContentTitle(title)
                 .setContentText(body)
                 .setAutoCancel(true)

@@ -81,7 +81,6 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("MainActivity", "Notification permission granted");
             } else {
                 Log.e("MainActivity", "Notification permission denied");
-                // Có thể show dialog giải thích cho user
             }
         }
     }

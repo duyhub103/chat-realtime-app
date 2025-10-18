@@ -26,7 +26,7 @@ public class SplashActivity extends AppCompatActivity {
         if(getIntent().getExtras()!=null){
             //from notification
             String userId = getIntent().getExtras().getString("userId");
-            Log.d("SplashActivity", "From notification with userId: " + userId);
+            //Log.d("SplashActivity", "From notification with userId: " + userId);
 
             if (userId != null && !userId.isEmpty()){
                 FirebaseUtil.allUserCollectionReference().document(userId).get()
