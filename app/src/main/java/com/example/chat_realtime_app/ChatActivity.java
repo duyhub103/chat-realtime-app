@@ -156,59 +156,54 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
-    void sendNotification(String message){
+    void sendNotification(String message) {
         FirebaseUtil.currentUserDetails().get().addOnCompleteListener(task -> {
-            if (!task.isSuccessful()) return;
-            UserModel currentUser = task.getResult().toObject(UserModel.class);
+            if (task.isSuccessful()) {
+                UserModel currentUser = task.getResult().toObject(UserModel.class);
+                try {
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("fcmToken", otherUser.getFcmToken());
+                    jsonObject.put("title", currentUser.getUsername());
+                    jsonObject.put("body", message);
 
-            try {
-                // payload top-level
-                JSONObject payload = new JSONObject();
-                payload.put("fcmToken", otherUser.getFcmToken());
-                payload.put("title", currentUser.getUsername());
-                payload.put("body", message);
+                    // Data thêm (chỉ userId là đủ, vì FCMNotificationService sẽ fetch UserModel từ Firestore)
+                    JSONObject dataObj = new JSONObject();
+                    dataObj.put("userId", currentUser.getUserId());
+                    jsonObject.put("data", dataObj);
 
-                // data để client mở đúng chat
-                JSONObject data = new JSONObject();
-                data.put("otherUserId", otherUser.getUserId());
-                data.put("otherUsername", otherUser.getUsername());
-                data.put("otherAvatarUrl", otherUser.getAvatarUrl() == null ? "" : otherUser.getAvatarUrl());
-                data.put("chatroomId", FirebaseUtil.getChatroomId(FirebaseUtil.currentUserId(), otherUser.getUserId()));
-                payload.put("data", data);
-
-                callApi(payload);
-            } catch (Exception e) {
-                Log.e("SendNotification", "Build JSON error", e);
-            }
-        });
-    }
-
-    void callApi(JSONObject jsonObject){
-        MediaType JSON = MediaType.get("application/json; charset=utf-8");
-        OkHttpClient client = new OkHttpClient();
-        RequestBody body = RequestBody.create(jsonObject.toString(), JSON);
-        Request request = new Request.Builder()
-                .url("https://chat-realtime-app-mgyn.onrender.com/send")
-                .post(body)
-                .build();
-
-        client.newCall(request).enqueue(new Callback() {
-            @Override public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                Log.e("SendNotification", "HTTP error: " + e.getMessage());
-            }
-            @Override public void onResponse(@NonNull Call call, @NonNull Response res) throws IOException {
-                String respBody = res.body() != null ? res.body().string() : "";
-                if (res.isSuccessful()) {
-                    Log.d("SendNotification", "OK " + respBody);
-                } else {
-                    Log.e("SendNotification", "FAIL " + res.code() + " " + respBody);
+                    callApi(jsonObject);
+                } catch (Exception e) {
+                    Log.e("ChatActivity", "Error creating notification JSON", e);
                 }
             }
         });
     }
 
+    void callApi(JSONObject jsonObject) {
+        MediaType JSON = MediaType.get("application/json; charset=utf-8");
+        OkHttpClient client = new OkHttpClient();
+        String url = "https://chat-realtime-app-mgyn.onrender.com/send";
+        RequestBody body = RequestBody.create(jsonObject.toString(), JSON);
+        Request request = new Request.Builder()
+                .url(url)
+                .post(body)
+                .build();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                Log.e("ChatActivity", "Server send failed", e);
+            }
 
-
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    Log.d("ChatActivity", "Server sent successfully: " + response.body().string());
+                } else {
+                    Log.e("ChatActivity", "Server send error: " + response.body().string());
+                }
+            }
+        });
+    }
 }
 
 
