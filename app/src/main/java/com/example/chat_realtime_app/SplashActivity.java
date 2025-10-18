@@ -17,6 +17,7 @@ import com.example.chat_realtime_app.utils.AndroidUtil;
 
 
 public class SplashActivity extends AppCompatActivity {
+    private static final String TAG = "SplashActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,31 +30,11 @@ public class SplashActivity extends AppCompatActivity {
             //Log.d("SplashActivity", "From notification with userId: " + userId);
 
             if (userId != null && !userId.isEmpty()){
-                FirebaseUtil.allUserCollectionReference().document(userId).get()
-                        .addOnCompleteListener(task -> {
-                            if(task.isSuccessful()){
-                                UserModel model = task.getResult().toObject(UserModel.class);
+                openChatFromNotification(userId);
 
-                                Intent mainIntent = new Intent(this,MainActivity.class);
-                                mainIntent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                                startActivity(mainIntent);
-
-                                Intent intent = new Intent(this, ChatActivity.class);
-                                AndroidUtil.passUserModelAsIntent(intent,model);
-                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                startActivity(intent);
-                                finish();
-                            }
-                            else{
-                                Log.e("SplashActivity", "Failed to fetch user", task.getException());
-                            }
-                        });
             }else{
+                openMainAct();
                 // Trường hợp không có userId → chỉ mở MainActivity
-                Intent intent = new Intent(this, MainActivity.class);
-                intent.setFlags(intent.FLAG_ACTIVITY_NO_ANIMATION);
-                startActivity(intent);
-                finish();
             }
         }else{
             new Handler().postDelayed(new Runnable() {
@@ -62,11 +43,52 @@ public class SplashActivity extends AppCompatActivity {
                     if(FirebaseUtil.isLoggedIn()){
                         startActivity(new Intent(SplashActivity.this,MainActivity.class));
                     }else{
-                        startActivity(new Intent(SplashActivity.this,LoginPhoneNumberActivity.class));
+                        startActivity(new Intent(SplashActivity.this,LoginEmailActivity.class));
                     }
                     finish();
                 }
             },1000);
         }
+    }
+
+    private void openMainAct() {
+        new Handler().postDelayed(() -> {
+            if (FirebaseUtil.isLoggedIn()) {
+                startActivity(new Intent(this, MainActivity.class));
+            } else {
+                openLoginEmail();
+            }
+            finish();
+        }, 1000);
+
+        }
+
+    private void openLoginEmail() {
+        Intent intent = new Intent(this, LoginEmailActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        startActivity(intent);
+    }
+
+    private void openChatFromNotification(String userId) {
+        FirebaseUtil.allUserCollectionReference().document(userId).get()
+                .addOnCompleteListener(task -> {
+                    if(task.isSuccessful()){
+                        UserModel model = task.getResult().toObject(UserModel.class);
+
+                        Intent mainIntent = new Intent(this,MainActivity.class);
+                        mainIntent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                        startActivity(mainIntent);
+
+                        Intent intent = new Intent(this, ChatActivity.class);
+                        AndroidUtil.passUserModelAsIntent(intent,model);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                        finish();
+                    }
+                    else{
+                        Log.e("SplashActivity", "Failed to fetch user", task.getException());
+                        openLoginEmail();
+                    }
+                });
     }
 }
