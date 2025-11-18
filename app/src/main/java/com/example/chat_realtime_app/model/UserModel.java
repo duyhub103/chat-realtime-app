@@ -2,6 +2,8 @@ package com.example.chat_realtime_app.model;
 
 import com.google.firebase.Timestamp;
 
+import java.util.List;
+
 public class UserModel {
     private String userId;
     private String username;
@@ -10,6 +12,7 @@ public class UserModel {
     private String avatarUrl;
     private String fcmToken;
     private Timestamp createdTimestamp;
+    private List<String> searchKeywords;
 
     public UserModel() {
     }
@@ -84,5 +87,13 @@ public class UserModel {
 
     public void setCreatedTimestamp(Timestamp createdTimestamp) {
         this.createdTimestamp = createdTimestamp;
+    }
+
+    public List<String> getSearchKeywords() {
+        return searchKeywords;
+    }
+
+    public void setSearchKeywords(List<String> searchKeywords) {
+        this.searchKeywords = searchKeywords;
     }
 }
