@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:padding="20dp"
+    android:weightSum="100"
+    tools:context=".LoginEmailActivity">
+
+    <!-- Logo / Icon -->
+    <ImageView
+        android:id="@+id/login_logo"
+        android:layout_width="140dp"
+        android:layout_height="140dp"
+        android:src="@drawable/person_icon"
+        app:tint="@color/my_primary"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:layout_weight="12" />
+
+    <!-- Title -->
+    <TextView
+        android:id="@+id/login_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Log in to your account"
+        android:textStyle="bold"
+        android:textSize="22sp"
+        android:letterSpacing="0.02"
+        android:gravity="center"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="12dp"
+        android:layout_weight="6" />
+
+    <!-- Email -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_weight="20">
+
+        <EditText
+            android:id="@+id/et_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:layout_marginBottom="12dp"
+            android:hint="Email"
+            android:inputType="textEmailAddress"
+            android:autofillHints="emailAddress"
+            android:background="@drawable/edit_text_rounded_corner"
+            android:drawableStart="@drawable/ic_email"
+            android:drawablePadding="8dp" />
+
+        <!-- Password -->
+        <EditText
+            android:id="@+id/et_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:layout_marginBottom="8dp"
+            android:hint="Password"
+            android:inputType="textPassword"
+            android:autofillHints="password"
+            android:background="@drawable/edit_text_rounded_corner"
+            android:drawableStart="@drawable/ic_lock"
+            android:drawablePadding="8dp" />
+
+        <!-- Login button -->
+        <Button
+            android:id="@+id/btn_login"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:text="Log in"
+            android:textAllCaps="false"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/btn_rounded_corner" />
+
+        <!-- Progress -->
+        <ProgressBar
+            android:id="@+id/login_progress"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp"
+            android:indeterminateTint="@color/my_primary"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <!-- Don't have an account?  Sign up here -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="8dp"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/tv_no_account"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Don’t have an account? "
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tv_sign_up_here"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sign up here"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:textColor="@color/my_primary"
+            android:clickable="true"
+            android:focusable="true" />
+    </LinearLayout>
+
+    <!-- Divider "OR" -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="10dp">
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1"
+            android:background="@color/light_gray" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="  OR  "
+            android:textColor="@color/light_gray"
+            android:textSize="12sp" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1"
+            android:background="@color/light_gray" />
+    </LinearLayout>
+
+    <!-- Continue with Phone Number -->
+    <LinearLayout
+        android:id="@+id/btn_login_phone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:background="@drawable/edit_text_rounded_corner"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackground"
+        android:layout_marginBottom="8dp">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_phone"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:gravity="center_vertical"
+            android:layout_weight="1"
+            android:paddingStart="10dp"
+            android:text="Continue with phone number"
+            android:textSize="15sp" />
+    </LinearLayout>
+
+    <!-- Small helper text -->
+    <TextView
+        android:id="@+id/tv_helper"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Use your phone to receive a verification code."
+        android:textSize="12sp"
+        android:textColor="@color/light_gray"
+        android:gravity="center"
+        android:layout_marginTop="4dp"
+        android:layout_weight="6" />
+
+</LinearLayout>

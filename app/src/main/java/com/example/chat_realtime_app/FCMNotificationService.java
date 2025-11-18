@@ -45,7 +45,7 @@ public class FCMNotificationService extends FirebaseMessagingService {
         super.onMessageReceived(message);
         //Log.d("FCMService", "Message received: " + message.getData().toString());
 
-        // 🔹 Ưu tiên đọc từ "data" vì server bạn đang gửi theo kiểu data-only
+        // Ưu tiên đọc từ "data" vì server bạn đang gửi theo kiểu data-only
         if (message.getData().size() > 0) {
             String title = message.getData().get("title");
             String body = message.getData().get("body");
@@ -56,7 +56,7 @@ public class FCMNotificationService extends FirebaseMessagingService {
                 return;
             }
 
-            // 🔹 Lấy thông tin người gửi từ Firestore
+            // Lấy thông tin người gửi từ Firestore
             FirebaseUtil.allUserCollectionReference().document(userId).get()
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
