@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.chat_realtime_app.model.UserModel;
 import com.example.chat_realtime_app.utils.FirebaseUtil;
+import com.example.chat_realtime_app.utils.KeywordUtils;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -77,6 +78,7 @@ public class SignUpEmailActivity extends AppCompatActivity {
                         user.setEmail(email);
                         user.setUsername(fullname);
                         user.setCreatedTimestamp(Timestamp.now());
+                        user.setSearchKeywords(KeywordUtils.generateKeywords(fullname.toLowerCase()));
 
                         // Lưu vào Firestore
                         FirebaseUtil.currentUserDetails().set(user)

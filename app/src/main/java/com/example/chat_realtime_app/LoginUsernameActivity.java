@@ -16,6 +16,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.chat_realtime_app.model.UserModel;
 import com.example.chat_realtime_app.utils.FirebaseUtil;
+import com.example.chat_realtime_app.utils.KeywordUtils;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
@@ -60,6 +61,8 @@ public class LoginUsernameActivity extends AppCompatActivity {
             userModel.setUsername(username);
         }else{
             userModel = new UserModel(phoneNumber, username, Timestamp.now(), FirebaseUtil.currentUserId());
+            // khi tạo mới user thì thêm các keyword vào mảng serchKeywords
+            userModel.setSearchKeywords(KeywordUtils.generateKeywords(username.toLowerCase()));
         }
 
         FirebaseUtil.currentUserDetails().set(userModel).addOnCompleteListener(new OnCompleteListener<Void>() {

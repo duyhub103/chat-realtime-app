@@ -20,9 +20,12 @@ import com.example.chat_realtime_app.model.UserModel;
 import com.example.chat_realtime_app.utils.AndroidUtil;
 import com.example.chat_realtime_app.utils.CloudinaryUtil;
 import com.example.chat_realtime_app.utils.FirebaseUtil;
+import com.example.chat_realtime_app.utils.KeywordUtils;
 import com.github.dhaval2404.imagepicker.ImagePicker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.messaging.FirebaseMessaging;
+
+import java.util.List;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
@@ -161,8 +164,17 @@ public class ProfileFragment extends Fragment {
 
     //save to database
     void updateToFirestore(){
+
+        String newUsername = currentUserModel.getUsername().trim().toLowerCase();
+
+        // Tạo keywords mới dựa trên username mới
+        List<String> newKeywords = KeywordUtils.generateKeywords(newUsername);
+
         FirebaseUtil.currentUserDetails()
-                .update("username", currentUserModel.getUsername())
+                .update(
+                        "username", newUsername,
+                        "searchKeywords", newKeywords
+                )
                 .addOnCompleteListener(task -> {
                     setInProgress(false);
                     if(task.isSuccessful()){
@@ -172,6 +184,7 @@ public class ProfileFragment extends Fragment {
                     }
                 });
     }
+
 
     void getUserData(){
         setInProgress(true);
