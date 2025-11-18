@@ -168,8 +168,8 @@
                 android:textStyle="bold"
                 android:textSize="14sp"
                 android:textColor="@color/my_primary"
-                android:clickable="true"
-                android:focusable="true" />
+                android:clickable="false"
+                android:focusable="false" />
         </LinearLayout>
 
         <!-- Small helper -->
