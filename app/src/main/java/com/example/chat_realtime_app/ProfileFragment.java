@@ -41,6 +41,10 @@ public class ProfileFragment extends Fragment {
     UserModel currentUserModel;
     ActivityResultLauncher<Intent> imagePickLauncher;
     Uri selectedImageUri;
+    EditText emailInput;
+    EditText birthdateInput;
+    Spinner genderSpinner;
+
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -110,7 +114,22 @@ public class ProfileFragment extends Fragment {
         progressBar = view.findViewById(R.id.profile_progress_bar);
         logoutBtn = view.findViewById(R.id.logout_btn);
 
+        emailInput = view.findViewById(R.id.profile_email);
+        birthdateInput = view.findViewById(R.id.profile_birthdate);
+        genderSpinner = view.findViewById(R.id.profile_gender);
+
+
         getUserData();
+
+        ArrayAdapter<String> genderAdapter = new ArrayAdapter<>(
+                getContext(),
+                android.R.layout.simple_spinner_item,
+                new String[]{"Male", "Female"}
+        );
+
+        //thêm gender cho spinner
+        genderAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        genderSpinner.setAdapter(genderAdapter);
 
         updateProfileBtn.setOnClickListener(v -> {
             updateBtnClick();
@@ -143,20 +162,28 @@ public class ProfileFragment extends Fragment {
                         }
                     });
         });
-
-
-
         return view;
     }
 
     void updateBtnClick(){
-        String newUsername = usernameInput.getText().toString();
+        String newUsername = usernameInput.getText().toString().trim();
+        String newPhone = phoneInput.getText().toString().trim();
+        String newEmail = emailInput.getText().toString().trim();
+        String newBirthday = birthdateInput.getText().toString().trim();
+        String newGender = genderSpinner.getSelectedItem().toString();
         if(newUsername.isEmpty() || newUsername.length()<3){
             usernameInput.setError("Username must be at least 3 characters chars");
             usernameInput.requestFocus();
             return;
         }
+
         currentUserModel.setUsername(newUsername);
+        currentUserModel.setPhone(newPhone);
+        currentUserModel.setEmail(newEmail);
+        currentUserModel.setBirthdate(newBirthday);
+        currentUserModel.setGender(newGender);
+
+
         setInProgress(true);
         updateToFirestore();
 
@@ -172,7 +199,11 @@ public class ProfileFragment extends Fragment {
 
         FirebaseUtil.currentUserDetails()
                 .update(
-                        "username", newUsername,
+                        "username", currentUserModel.getUsername(),
+                        "phone", currentUserModel.getPhone(),
+                        "email", currentUserModel.getEmail(),
+                        "birthdate", currentUserModel.getBirthdate(),
+                        "gender", currentUserModel.getGender(),
                         "searchKeywords", newKeywords
                 )
                 .addOnCompleteListener(task -> {
@@ -187,6 +218,7 @@ public class ProfileFragment extends Fragment {
 
 
     void getUserData(){
+
         setInProgress(true);
         FirebaseUtil.currentUserDetails().get().addOnCompleteListener(task -> {
             setInProgress(false);
@@ -194,13 +226,50 @@ public class ProfileFragment extends Fragment {
            usernameInput.setText(currentUserModel.getUsername());
            phoneInput.setText(currentUserModel.getPhone());
 
+           emailInput.setText(currentUserModel.getEmail());
+           birthdateInput.setText(currentUserModel.getBirthdate());
+
+           //gender
+            if(currentUserModel.getGender() != null){
+                if(currentUserModel.getGender().equalsIgnoreCase("Male")){
+                    genderSpinner.setSelection(0);
+                }else{
+                    genderSpinner.setSelection(1);
+                }
+            }
+
            //get avatar
             if (currentUserModel.getAvatarUrl() != null && !currentUserModel.getAvatarUrl().isEmpty()) {
                 AndroidUtil.setProfilePic(getContext(), Uri.parse(currentUserModel.getAvatarUrl()), profilePic);
             }
 
+            loginProvider();
         });
     }
+
+    private void loginProvider() {
+        if (currentUserModel == null) return;
+
+        String phone = currentUserModel.getPhone();
+        String email = currentUserModel.getEmail();
+
+        // Nếu user đăng ký bằng SĐT → đã có phone, cho phép sửa email, khóa phone
+        if (phone != null && !phone.isEmpty()) {
+            phoneInput.setEnabled(false);
+            emailInput.setEnabled(true);
+        }
+        // Nếu user đăng ký bằng email → cho sửa phone, khóa email
+        else if (email != null && !email.isEmpty()) {
+            phoneInput.setEnabled(true);
+            emailInput.setEnabled(false);
+        }
+        // Trường hợp cả 2 đều null (data cũ, lỗi, v.v.)
+        else {
+            phoneInput.setEnabled(true);
+            emailInput.setEnabled(true);
+        }
+    }
+
 
     void setInProgress(boolean inProgress){
         if(inProgress){

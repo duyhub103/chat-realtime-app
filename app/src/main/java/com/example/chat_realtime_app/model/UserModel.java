@@ -13,6 +13,24 @@ public class UserModel {
     private String fcmToken;
     private Timestamp createdTimestamp;
     private List<String> searchKeywords;
+    private String gender;
+    private String birthdate;
+
+    public String getBirthdate() {
+        return birthdate;
+    }
+
+    public void setBirthdate(String birthday) {
+        this.birthdate = birthday;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
 
     public UserModel() {
     }

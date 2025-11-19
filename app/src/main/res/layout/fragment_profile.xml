@@ -1,73 +1,113 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".ProfileFragment"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:layout_margin="20dp">
-
-    <ImageView
-        android:layout_width="160dp"
-        android:layout_height="160dp"
-        android:background="@drawable/circular_bg"
-        android:backgroundTint="@color/my_primary"
-        android:src="@drawable/person_icon"
-        android:scaleType="centerCrop"
-        android:layout_marginBottom="40dp"
-        android:id="@+id/profile_image_view"/>
-
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:padding="10dp"
-        android:hint="Username"
-        android:inputType="text"
-        android:layout_margin="10dp"
-        android:background="@drawable/edit_text_rounded_corner"
-        android:elevation="5dp"
-        android:id="@+id/profile_username"
-        />
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:padding="10dp"
-        android:hint="Phone"
-        android:inputType="text"
-        android:layout_margin="10dp"
-        android:background="@drawable/edit_text_rounded_corner"
-        android:elevation="5dp"
-        android:enabled="false"
-        android:id="@+id/profile_phone"
-        />
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:gravity="center_vertical"
-        android:layout_marginTop="20dp"
-        android:orientation="vertical">
-        <Button
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp"
+        android:gravity="center_horizontal">
+
+        <!-- Avatar -->
+        <ImageView
+            android:id="@+id/profile_image_view"
+            android:layout_width="140dp"
+            android:layout_height="140dp"
+            android:background="@drawable/circular_bg"
+            android:backgroundTint="@color/my_primary"
+            android:src="@drawable/person_icon"
+            android:scaleType="centerCrop"
+            android:layout_marginBottom="30dp"/>
+
+        <!-- Username -->
+        <EditText
+            android:id="@+id/profile_username"
             android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginBottom="14dp"
+            android:padding="10dp"
+            android:hint="Username"
+            android:background="@drawable/edit_text_rounded_corner"
+            android:inputType="textPersonName"/>
+
+        <!-- Phone -->
+        <EditText
+            android:id="@+id/profile_phone"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginBottom="14dp"
+            android:padding="10dp"
+            android:hint="Phone"
+            android:background="@drawable/edit_text_rounded_corner"
+            android:enabled="false"
+            android:inputType="phone"/>
+
+        <!-- Email -->
+        <EditText
+            android:id="@+id/profile_email"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginBottom="14dp"
+            android:padding="10dp"
+            android:hint="Email"
+            android:background="@drawable/edit_text_rounded_corner"
+            android:enabled="false"
+            android:inputType="textEmailAddress"/>
+
+        <!-- Birthdate -->
+        <EditText
+            android:id="@+id/profile_birthdate"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginBottom="14dp"
+            android:padding="10dp"
+            android:hint="Birth date (dd/MM/yyyy)"
+            android:background="@drawable/edit_text_rounded_corner"
+            android:inputType="date"/>
+
+        <!-- Gender -->
+        <Spinner
+            android:id="@+id/profile_gender"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/edit_text_rounded_corner"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp" />
+
+        <!-- Update button + progress -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/profle_update_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/btn_rounded_corner"
+                android:text="Update profile" />
+
+            <ProgressBar
+                android:id="@+id/profile_progress_bar"
+                android:layout_width="32dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:indeterminateTint="@color/my_primary"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <!-- Logout -->
+        <TextView
+            android:id="@+id/logout_btn"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/btn_rounded_corner"
-            android:text="Update profile"
-            android:id="@+id/profle_update_btn"/>
-        <ProgressBar
-            android:layout_width="32dp"
-            android:layout_height="wrap_content"
-            android:indeterminateTint="@color/my_primary"
-            android:layout_gravity="center"
-            android:id="@+id/profile_progress_bar"/>
+            android:text="Logout"
+            android:layout_marginTop="10dp"
+            android:textSize="16sp"/>
     </LinearLayout>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Logout"
-        android:id="@+id/logout_btn"/>
-
-
-
-</LinearLayout>
+</ScrollView>
