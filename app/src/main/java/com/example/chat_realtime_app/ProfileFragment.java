@@ -253,17 +253,16 @@ public class ProfileFragment extends Fragment {
         String phone = currentUserModel.getPhone();
         String email = currentUserModel.getEmail();
 
-        // Nếu user đăng ký bằng SĐT → đã có phone, cho phép sửa email, khóa phone
+        // Nếu user đăng ký bằng SĐT thì  cho phép sửa email, khóa phone
         if (phone != null && !phone.isEmpty()) {
             phoneInput.setEnabled(false);
             emailInput.setEnabled(true);
         }
-        // Nếu user đăng ký bằng email → cho sửa phone, khóa email
+        // Nếu user đăng ký bằng email thì cho sửa phone, khóa email
         else if (email != null && !email.isEmpty()) {
             phoneInput.setEnabled(true);
             emailInput.setEnabled(false);
         }
-        // Trường hợp cả 2 đều null (data cũ, lỗi, v.v.)
         else {
             phoneInput.setEnabled(true);
             emailInput.setEnabled(true);
