@@ -32,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
 
     ChatFragment chatFragment;
     ProfileFragment profileFragment;
+    GroupFragment groupFragment;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
 
         chatFragment = new ChatFragment();
         profileFragment = new ProfileFragment();
+        groupFragment = new GroupFragment();
 
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         searchButton = findViewById(R.id.main_search_btn);
@@ -64,6 +67,9 @@ public class MainActivity extends AppCompatActivity {
                 }
                 if(item.getItemId()==R.id.menu_profile){
                     getSupportFragmentManager().beginTransaction().replace(R.id.main_frame_layout,profileFragment).commit();
+                }
+                if(item.getItemId()==R.id.menu_group){
+                    getSupportFragmentManager().beginTransaction().replace(R.id.main_frame_layout,groupFragment).commit();
                 }
                 return true;
             }

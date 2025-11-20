@@ -116,4 +116,9 @@ public class FirebaseUtil {
 //                .child(otherUserId);
 //    }
 
+    public static CollectionReference allGroupsCollectionReference() {
+        return FirebaseFirestore.getInstance().collection("groups");
+    }
+
+
 }

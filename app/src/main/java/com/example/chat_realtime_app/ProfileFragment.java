@@ -24,6 +24,7 @@ import com.example.chat_realtime_app.utils.KeywordUtils;
 import com.github.dhaval2404.imagepicker.ImagePicker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.List;
@@ -224,7 +225,7 @@ public class ProfileFragment extends Fragment {
                 });
     }
 
-    private boolean isEmailTakenByOtherUser(com.google.firebase.firestore.QuerySnapshot result) {
+    private boolean isEmailTakenByOtherUser(QuerySnapshot result) {
         for (DocumentSnapshot doc : result) {
             String uid = doc.getId();
             if (!uid.equals(FirebaseUtil.currentUserId())) {
