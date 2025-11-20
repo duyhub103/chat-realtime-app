@@ -1,5 +1,6 @@
 package com.example.chat_realtime_app.utils;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
@@ -7,6 +8,9 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -62,6 +66,37 @@ public class FirebaseUtil {
             return allUserCollectionReference().document(userIds.get(0));
         }
     }
+
+    public static void deleteChatroomWithMessages(String chatroomId, OnCompleteListener<Void> onCompleteListener) {
+        // lấy tất cả mess trong subcollection chats
+        getChatroomMessageReference(chatroomId).get().addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        if (onCompleteListener != null) {
+                            //onCompleteListener.onComplete(task);
+                        }
+                        return;
+                    }
+
+                    //xóa tất cả mess bằng batch
+                    WriteBatch batch = FirebaseFirestore.getInstance().batch();
+                    for (DocumentSnapshot doc : task.getResult()) {
+                        batch.delete(doc.getReference());
+                    }
+
+                    batch.commit().addOnCompleteListener(batchTask -> {
+                        if (!batchTask.isSuccessful()) {
+                            if (onCompleteListener != null) {
+                                onCompleteListener.onComplete(batchTask);
+                            }
+                            return;
+                        }
+
+                        // Sau khi xoá xong mess thì xoá luôn document chatroom
+                        getChatroomReference(chatroomId).delete().addOnCompleteListener(onCompleteListener);
+                    });
+                });
+    }
+
 
     public static String timestampToString(Timestamp timestamp){
         return new SimpleDateFormat("HH:mm").format(timestamp.toDate());

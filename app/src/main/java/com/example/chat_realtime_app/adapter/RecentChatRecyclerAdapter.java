@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.app.AlertDialog;
 
 import com.example.chat_realtime_app.ChatActivity;
 import com.example.chat_realtime_app.R;
@@ -36,6 +37,10 @@ public class RecentChatRecyclerAdapter extends FirestoreRecyclerAdapter<Chatroom
 
     @Override
     protected void onBindViewHolder(@NonNull ChatroomModelViewHolder holder, int position, @NonNull ChatroomModel model) {
+
+        String chatroomId = getSnapshots().getSnapshot(position).getId();
+
+
         FirebaseUtil.getOtherUserFromChatroom(model.getUserIds())
                 .get().addOnCompleteListener(task -> {
                     if(task.isSuccessful()){
@@ -70,7 +75,7 @@ public class RecentChatRecyclerAdapter extends FirestoreRecyclerAdapter<Chatroom
                         holder.lastMessageTime.setText(FirebaseUtil.timestampToString(model.getLastMessageTimestamp()));
 
 
-                        //open chat activity on click
+                        // open chat activity on click
                         holder.itemView.setOnClickListener(v -> {
                             Intent intent = new Intent(context, ChatActivity.class);
                             AndroidUtil.passUserModelAsIntent(intent,otherUserModel);
@@ -78,6 +83,25 @@ public class RecentChatRecyclerAdapter extends FirestoreRecyclerAdapter<Chatroom
                             context.startActivity(intent);
                         });
 
+                        // long click xóa chat
+                        holder.itemView.setOnLongClickListener(v -> {
+                            new AlertDialog.Builder(context)
+                                    .setTitle("Delete conversation")
+                                    .setMessage("Do you want to delete this conversation?")
+                                    .setPositiveButton("Delete", (dialog, which) -> {
+                                        // Gọi hàm xoá trong FirebaseUtil
+                                        FirebaseUtil.deleteChatroomWithMessages(chatroomId, t -> {
+                                            if (t.isSuccessful()) {
+                                                AndroidUtil.showToast(context, "Conversation deleted");
+                                            } else {
+                                                AndroidUtil.showToast(context, "Failed to delete conversation");
+                                            }
+                                        });
+                                    })
+                                    .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
+                                    .show();
+                            return true;
+                        });
                     }
                 });
     }
