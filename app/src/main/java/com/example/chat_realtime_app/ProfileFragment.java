@@ -23,6 +23,7 @@ import com.example.chat_realtime_app.utils.FirebaseUtil;
 import com.example.chat_realtime_app.utils.KeywordUtils;
 import com.github.dhaval2404.imagepicker.ImagePicker;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.List;
@@ -191,20 +192,69 @@ public class ProfileFragment extends Fragment {
 
     //save to database
     void updateToFirestore(){
+        String newEmail = normalizeString(currentUserModel.getEmail());
 
-        String newUsername = currentUserModel.getUsername().trim().toLowerCase();
+        // Nếu email trống thì update luôn
+        if (newEmail.isEmpty()) {
+            executeProfileUpdate();
+            return;
+        }
+        // Nếu có email thì check trùng
+        checkEmailAvailability(newEmail);
+    }
 
-        // Tạo keywords mới dựa trên username mới
-        List<String> newKeywords = KeywordUtils.generateKeywords(newUsername);
+    // check email trùng
+    private void checkEmailAvailability(String email) {
+        FirebaseUtil.allUserCollectionReference()
+                .whereEqualTo("email", email)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        setInProgress(false);
+                        AndroidUtil.showToast(getContext(), "Error checking email");
+                        return;
+                    }
+
+                    if (isEmailTakenByOtherUser(task.getResult())) {
+                        setInProgress(false);
+                        AndroidUtil.showToast(getContext(), "This email is already exists");
+                    } else {
+                        executeProfileUpdate();
+                    }
+                });
+    }
+
+    private boolean isEmailTakenByOtherUser(com.google.firebase.firestore.QuerySnapshot result) {
+        for (DocumentSnapshot doc : result) {
+            String uid = doc.getId();
+            if (!uid.equals(FirebaseUtil.currentUserId())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    private String normalizeString(String value) {
+        return value != null ? value.trim() : "";
+    }
+
+
+    //thực hiện update vào database
+    private void executeProfileUpdate() {
+        // Tạo keywords từ username
+        String username = normalizeString(currentUserModel.getUsername());
+
+        List<String> keywords = KeywordUtils.generateKeywords(username.toLowerCase());
 
         FirebaseUtil.currentUserDetails()
                 .update(
-                        "username", currentUserModel.getUsername(),
-                        "phone", currentUserModel.getPhone(),
-                        "email", currentUserModel.getEmail(),
+                        "username", username,
+                        "phone", normalizeString(currentUserModel.getPhone()),
+                        "email", normalizeString(currentUserModel.getEmail()),
                         "birthdate", currentUserModel.getBirthdate(),
                         "gender", currentUserModel.getGender(),
-                        "searchKeywords", newKeywords
+                        "searchKeywords", keywords
                 )
                 .addOnCompleteListener(task -> {
                     setInProgress(false);
@@ -215,6 +265,7 @@ public class ProfileFragment extends Fragment {
                     }
                 });
     }
+
 
 
     void getUserData(){

@@ -53,7 +53,7 @@ public class SignUpEmailActivity extends AppCompatActivity {
         String confirmPassword = confirmPasswordInput.getText().toString().trim();
 
         if (fullname.isEmpty() || email.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Please fill your information", Toast.LENGTH_SHORT).show();
             return;
         }
         if (!password.equals(confirmPassword)) {
@@ -67,36 +67,70 @@ public class SignUpEmailActivity extends AppCompatActivity {
 
         setInProgress(true);
 
-        auth.createUserWithEmailAndPassword(email, password)
+        FirebaseUtil.allUserCollectionReference()
+                .whereEqualTo("email", email)
+                .get()
                 .addOnCompleteListener(task -> {
-                    setInProgress(false);
-                    if (task.isSuccessful()) {
-                        FirebaseUser firebaseUser = auth.getCurrentUser();
+                    if (!task.isSuccessful()) {
+                        setInProgress(false);
+                        Toast.makeText(this, "Error checking email. Try again.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
 
-                        UserModel user = new UserModel();
-                        user.setUserId(firebaseUser.getUid());
-                        user.setEmail(email);
-                        user.setUsername(fullname);
-                        user.setCreatedTimestamp(Timestamp.now());
-                        user.setSearchKeywords(KeywordUtils.generateKeywords(fullname.toLowerCase()));
-
-                        // Lưu vào Firestore
-                        FirebaseUtil.currentUserDetails().set(user)
-                                .addOnCompleteListener(saveTask -> {
-                                    if (saveTask.isSuccessful()) {
-                                        Toast.makeText(this, "Account created!", Toast.LENGTH_SHORT).show();
-                                        startActivity(new Intent(this, MainActivity.class));
-                                        finish();
-                                    } else {
-                                        Toast.makeText(this, "Error saving user info", Toast.LENGTH_SHORT).show();
-                                    }
-                                });
+                    if (!task.getResult().isEmpty()) {
+                        // email đã tồn tại trong firestore
+                        setInProgress(false);
+                        Toast.makeText(this, "This email is already exists", Toast.LENGTH_LONG).show();
                     } else {
-                        Toast.makeText(this, "Sign up failed: " + task.getException().getMessage(),
-                                Toast.LENGTH_LONG).show();
+                        // 2) Không trùng mail trong firestore thì tạo trong Auth
+                        createAuthAccount(fullname, email, password);
                     }
                 });
     }
+
+    private void createAuthAccount(String fullname, String email, String password) {
+        auth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        setInProgress(false);
+                        Toast.makeText(this,
+                                "Sign up failed: " + task.getException().getMessage(),
+                                Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+                    // Tạo document user trong Firestore
+                    FirebaseUser firebaseUser = auth.getCurrentUser();
+                    if (firebaseUser == null) {
+                        setInProgress(false);
+                        Toast.makeText(this, "Error: user is null", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    UserModel user = new UserModel();
+                    user.setUserId(firebaseUser.getUid());
+                    user.setEmail(email);
+                    user.setUsername(fullname);
+                    user.setCreatedTimestamp(Timestamp.now());
+                    user.setPhone(null); // signup bằng email nên phone để null
+                    user.setSearchKeywords(
+                            KeywordUtils.generateKeywords(fullname.toLowerCase())
+                    );
+
+                    FirebaseUtil.currentUserDetails().set(user)
+                            .addOnCompleteListener(saveTask -> {
+                                setInProgress(false);
+                                if (saveTask.isSuccessful()) {
+                                    Toast.makeText(this, "Account created!", Toast.LENGTH_SHORT).show();
+                                    startActivity(new Intent(this, MainActivity.class));
+                                    finish();
+                                } else {
+                                    Toast.makeText(this, "Error saving user info", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                });
+    }
+
 
     private void setInProgress(boolean inProgress) {
         progressBar.setVisibility(inProgress ? View.VISIBLE : View.GONE);
