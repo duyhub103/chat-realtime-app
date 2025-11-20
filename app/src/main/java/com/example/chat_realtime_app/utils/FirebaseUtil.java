@@ -120,5 +120,13 @@ public class FirebaseUtil {
         return FirebaseFirestore.getInstance().collection("groups");
     }
 
+    public static DocumentReference getGroupReference(String groupId) {
+        return allGroupsCollectionReference().document(groupId);
+    }
+
+    public static CollectionReference getGroupMessageReference(String groupId) {
+        return getGroupReference(groupId).collection("messages");
+    }
+
 
 }

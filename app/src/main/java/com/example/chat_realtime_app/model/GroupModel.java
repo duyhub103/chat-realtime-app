@@ -52,5 +52,7 @@ public class GroupModel {
     public void setMemberCount(long memberCount) { this.memberCount = memberCount; }
 
     public List<String> getMembers() { return members; }
-    public void setMembers(List<String> members) { this.members = members; }
+    public void setMembers(List<String> members) {
+        this.members = members;
+    }
 }

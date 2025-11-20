@@ -11,24 +11,29 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.chat_realtime_app.adapter.GroupListRecyclerAdapter;
 import com.example.chat_realtime_app.model.GroupModel;
 import com.example.chat_realtime_app.utils.FirebaseUtil;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class GroupFragment extends Fragment {
 
-    RecyclerView groupRecyclerView; // sau này dùng
+    RecyclerView groupRecyclerView;
     FloatingActionButton fabCreateGroup;
+    GroupListRecyclerAdapter adapter;
 
     public GroupFragment() {
-        // Required empty constructor
     }
 
     @Nullable
@@ -42,11 +47,62 @@ public class GroupFragment extends Fragment {
         groupRecyclerView = view.findViewById(R.id.group_recycler_view);
         fabCreateGroup = view.findViewById(R.id.fab_create_group);
 
-        // TODO: sau này setup RecyclerView hiển thị list group
+        // setup RecyclerView, chưa setup adapter
+        groupRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         fabCreateGroup.setOnClickListener(v -> showCreateGroupDialog());
 
         return view;
+    }
+
+    private void setupGroupRecyclerView() {
+        if (getContext() == null) return;
+
+        Query query = FirebaseUtil.allGroupsCollectionReference()
+                .orderBy("createdAt", Query.Direction.DESCENDING);
+
+        FirestoreRecyclerOptions<GroupModel> options =
+                new FirestoreRecyclerOptions.Builder<GroupModel>()
+                        .setQuery(query, GroupModel.class)
+                        .build();
+
+        adapter = new GroupListRecyclerAdapter(options, requireContext());
+        groupRecyclerView.setAdapter(adapter);
+        adapter.startListening();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        // tạo lại adapter mỗi lần Fragment visible
+        setupGroupRecyclerView();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        // Dừng và cleanup hoàn toàn adapter
+        if (adapter != null) {
+            adapter.stopListening();
+        }
+        if (groupRecyclerView != null) {
+            groupRecyclerView.setAdapter(null);
+        }
+        adapter = null;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        // Cleanup
+        if (adapter != null) {
+            adapter.stopListening();
+            adapter = null;
+        }
+        if (groupRecyclerView != null) {
+            groupRecyclerView.setAdapter(null);
+            groupRecyclerView = null;
+        }
     }
 
     private void showCreateGroupDialog() {
@@ -141,9 +197,9 @@ public class GroupFragment extends Fragment {
                 name,
                 currentUserId,
                 Timestamp.now(),
-                true,      // isPublic
+                true,
                 maxMembers,
-                1,         // memberCount
+                1,
                 members
         );
 
