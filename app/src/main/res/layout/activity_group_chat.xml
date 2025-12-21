@@ -1,63 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    tools:context=".GroupChatActivity">
 
-    <!-- Thanh trên: tên group + back -->
-    <LinearLayout
+    <!-- 1. Toolbar: Giống Chat 1:1 (Màu nền my_primary, chữ trắng) -->
+    <RelativeLayout
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:gravity="center_vertical"
-        android:padding="8dp">
+        android:layout_height="wrap_content"
+        android:background="@color/my_primary"
+        android:padding="10dp">
 
+        <!-- Nút Back -->
         <ImageButton
             android:id="@+id/back_btn"
-            android:layout_width="40dp"
+            android:layout_width="48dp"
             android:layout_height="48dp"
+            android:layout_centerVertical="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/icon_back"
-            android:background="@android:color/transparent" />
+            app:tint="@color/white" />
 
+        <!-- Tên nhóm -->
         <TextView
             android:id="@+id/group_name_text"
             android:layout_width="wrap_content"
             android:layout_height="48dp"
-            android:text="Group name"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="10dp"
+            android:text="Group Name"
+            android:layout_toRightOf="@id/back_btn"
             android:gravity="center"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:layout_marginStart="8dp" />
-    </LinearLayout>
+            android:textColor="@color/white"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+
+    </RelativeLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/group_chat_recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_height="match_parent"
+        android:layout_above="@id/bottom_layout"
+        android:layout_below="@id/toolbar" />
 
-    <LinearLayout
+
+    <RelativeLayout
+        android:id="@+id/bottom_layout"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:orientation="horizontal"
+        android:layout_height="80dp"
+        android:layout_alignParentBottom="true"
         android:padding="8dp">
 
         <EditText
             android:id="@+id/group_chat_message_input"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_weight="1"
-            android:minHeight="40dp"
-            android:hint="Message..."
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginBottom="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_toLeftOf="@id/group_message_send_btn"
             android:background="@drawable/edit_text_rounded_corner"
-            android:padding="8dp" />
+            android:elevation="4dp"
+            android:hint="Write message here"
+            android:padding="10dp" />
 
         <ImageButton
             android:id="@+id/group_message_send_btn"
-            android:layout_width="40dp"
+            android:layout_width="48dp"
             android:layout_height="48dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerInParent="true"
+            android:layout_marginStart="10dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="8dp"
             android:src="@drawable/icon_send"
-            android:background="@android:color/transparent"
-            android:layout_marginStart="8dp" />
-    </LinearLayout>
+            app:tint="@color/my_primary" />
 
-</LinearLayout>
+    </RelativeLayout>
+
+</RelativeLayout>

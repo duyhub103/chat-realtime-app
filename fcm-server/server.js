@@ -20,7 +20,7 @@ admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
 
-// Health check
+
 app.get("/", (req, res) => {
   res.status(200).send(`🚀 Server fix running`);
 });
@@ -37,10 +37,10 @@ app.post("/send", async (req, res) => {
       data: {
         title: title,
         body: body,
-        ...data, // Ví dụ: { userId: '...' }
+        ...data,
       },
-      android: { priority: 'high' }, // Đảm bảo high priority cho Android
-      apns: { headers: { 'apns-priority': '10' } }, // Cho iOS nếu cần
+      android: { priority: 'high' },
+      apns: { headers: { 'apns-priority': '10' } },
     };
 
     const response = await admin.messaging().send(message);
